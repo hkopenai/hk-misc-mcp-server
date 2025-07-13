@@ -80,11 +80,39 @@ def process_auction_row(
     return None
 
 
-def get_auction_data(
+def register(mcp):
+    """Registers the auction tool with the FastMCP server."""
+    @mcp.tool(
+        description="Auction data of confiscated, used/surplus, and unclaimed stores from Government Logistics Department Hong Kong."
+    )
+    def get_government_auction_data(
+        start_year: int,
+        start_month: int,
+        end_year: int,
+        end_month: int,
+        language: str,
+    ) -> List[Dict]:
+        """Fetch auction data from Government Logistics Department Hong Kong for a specified range of years and language.
+        The tool fetches data starting from the latest list number (24) backward until the specified year range is covered.
+        Items are filtered by the 'Date of Auction' to ensure they fall within the specified date range.
+
+        Args:
+            start_year (int): Starting year for the data range.
+            start_month (int): Starting month for the data range (1-12).
+            end_year (int): Ending year for the data range.
+            end_month (int): Ending month for the data range (1-12).
+            language (str): Language code for the data ('EN', 'TC', 'SC').
+
+        Returns:
+            List[Dict]: List of dictionaries containing auction data with Description and Quantity.
+        """
+        return _get_government_auction_data(start_year, start_month, end_year, end_month, language)
+
+
+def _get_government_auction_data(
     start_year: int, start_month: int, end_year: int, end_month: int, language: str
 ) -> List[Dict]:
-    """
-    Fetch auction data from Government Logistics Department Hong Kong for a specified range of years and language.
+    """Fetch auction data from Government Logistics Department Hong Kong for a specified range of years and language.
     The tool fetches data starting from the latest list number (24) backward until the specified year range is covered.
     Items are filtered by the 'Date of Auction' to ensure they fall within the specified date range.
 

@@ -14,7 +14,8 @@ from hkopenai.hk_misc_mcp_server.tool_auction import (
     create_date_range,
     fetch_csv_data,
     process_auction_row,
-    get_auction_data,
+    _get_government_auction_data,
+    register,
 )
 
 
@@ -189,7 +190,7 @@ class TestAuctionData(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch("hkopenai.hk_misc_mcp_server.tool_auction.fetch_csv_data")
-    def test_get_auction_data(self, mock_fetch):
+    def test_get_government_auction_data(self, mock_fetch):
         """
         Test retrieving auction data for a specified date range and language.
         
@@ -228,10 +229,47 @@ class TestAuctionData(unittest.TestCase):
             mock_csv_content,
         ]
 
-        result = get_auction_data(2024, 1, 2024, 12, "EN")
+        result = _get_government_auction_data(2024, 1, 2024, 12, "EN")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["Description"], "Watch (Brand: Casio)")
         self.assertEqual(result[0]["Quantity"], "270")
+
+    def test_register_tool(self):
+        """
+        Test the registration of the get_government_auction_data tool.
+
+        This test verifies that the register function correctly registers the tool
+        with the FastMCP server and that the registered tool calls the underlying
+        _get_government_auction_data function.
+        """
+        mock_mcp = MagicMock()
+
+        # Call the register function
+        register(mock_mcp)
+
+        # Verify that mcp.tool was called with the correct description
+        mock_mcp.tool.assert_called_once_with(
+            description="Auction data of confiscated, used/surplus, and unclaimed stores from Government Logistics Department Hong Kong."
+        )
+
+        # Get the mock that represents the decorator returned by mcp.tool
+        mock_decorator = mock_mcp.tool.return_value
+
+        # Verify that the mock decorator was called once (i.e., the function was decorated)
+        mock_decorator.assert_called_once()
+
+        # The decorated function is the first argument of the first call to the mock_decorator
+        decorated_function = mock_decorator.call_args[0][0]
+
+        # Verify the name of the decorated function
+        self.assertEqual(decorated_function.__name__, "get_government_auction_data")
+
+        # Call the decorated function and verify it calls _get_government_auction_data
+        with patch(
+            "hkopenai.hk_misc_mcp_server.tool_auction._get_government_auction_data"
+        ) as mock_get_government_auction_data:
+            decorated_function(2023, 1, 2023, 12, "EN")
+            mock_get_government_auction_data.assert_called_once_with(2023, 1, 2023, 12, "EN")
 
 
 if __name__ == "__main__":

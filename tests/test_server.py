@@ -40,24 +40,7 @@ class TestApp(unittest.TestCase):
         mock_fastmcp.assert_called_once()
         self.assertEqual(server, mock_server)
 
-        # Verify that the tool decorator was called for each tool function
-        self.assertEqual(mock_server.tool.call_count, 1)
-
-        # Get all decorated functions
-        decorated_funcs = {
-            call.args[0].__name__: call.args[0]
-            for call in mock_server.tool.return_value.call_args_list
-        }
-        self.assertEqual(len(decorated_funcs), 1)
-
-        # Call each decorated function and verify that the correct underlying function is called
-
-        decorated_funcs["get_auction_data"](
-            start_year=2023, start_month=1, end_year=2023, end_month=12, language="EN"
-        )
-        mock_tool_auction.get_auction_data.assert_called_once_with(
-            2023, 1, 2023, 12, "EN"
-        )
+        mock_tool_auction.register.assert_called_once_with(mock_server)
 
 
 if __name__ == "__main__":
