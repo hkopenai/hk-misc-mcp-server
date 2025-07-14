@@ -37,5 +37,4 @@ def main(host: str, port: int, sse: bool):
         print("MCP Server running in stdio mode")
 
 
-if __name__ == "__main__":
-    main()
+
