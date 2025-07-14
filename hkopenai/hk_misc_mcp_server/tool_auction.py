@@ -5,11 +5,12 @@ This module provides functionality to retrieve and process auction data
 for a specified date range and language.
 """
 
-import requests
 import csv
 from io import StringIO
 from typing import List, Dict, Optional
 from datetime import datetime
+
+import requests
 
 
 def validate_language(language: str) -> str:
@@ -82,6 +83,7 @@ def process_auction_row(
 
 def register(mcp):
     """Registers the auction tool with the FastMCP server."""
+
     @mcp.tool(
         description="Auction data of confiscated, used/surplus, and unclaimed stores from Government Logistics Department Hong Kong."
     )
@@ -106,7 +108,9 @@ def register(mcp):
         Returns:
             List[Dict]: List of dictionaries containing auction data with Description and Quantity.
         """
-        return _get_government_auction_data(start_year, start_month, end_year, end_month, language)
+        return _get_government_auction_data(
+            start_year, start_month, end_year, end_month, language
+        )
 
 
 def _get_government_auction_data(

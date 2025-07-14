@@ -22,14 +22,15 @@ from hkopenai.hk_misc_mcp_server.tool_auction import (
 class TestAuctionData(unittest.TestCase):
     """
     Test class for auction data processing.
-    
+
     This class contains test cases for validating language codes, creating date ranges,
     fetching CSV data, processing auction rows, and retrieving auction data.
     """
+
     def test_validate_language_valid(self):
         """
         Test validation of language codes with valid inputs.
-        
+
         Verifies that the function correctly converts lowercase language codes to uppercase.
         """
         self.assertEqual(validate_language("en"), "EN")
@@ -39,7 +40,7 @@ class TestAuctionData(unittest.TestCase):
     def test_validate_language_invalid(self):
         """
         Test validation of language codes with invalid input.
-        
+
         Verifies that the function raises a ValueError for unsupported language codes.
         """
         with self.assertRaises(ValueError):
@@ -48,7 +49,7 @@ class TestAuctionData(unittest.TestCase):
     def test_create_date_range(self):
         """
         Test creation of date range.
-        
+
         Verifies that the function creates correct start and end datetime objects for the given year and month range.
         """
         start_date, end_date = create_date_range(2023, 1, 2023, 12)
@@ -59,7 +60,7 @@ class TestAuctionData(unittest.TestCase):
     def test_fetch_csv_data_success(self, mock_get):
         """
         Test fetching CSV data with a successful response.
-        
+
         Verifies that the function returns a StringIO object with the correct content when the HTTP request succeeds.
         """
         mock_response = MagicMock()
@@ -76,7 +77,7 @@ class TestAuctionData(unittest.TestCase):
     def test_fetch_csv_data_404(self, mock_get):
         """
         Test fetching CSV data with a 404 response.
-        
+
         Verifies that the function returns None when the HTTP request results in a 404 status code.
         """
         mock_response = MagicMock()
@@ -90,7 +91,7 @@ class TestAuctionData(unittest.TestCase):
     def test_fetch_csv_data_other_status(self, mock_get):
         """
         Test fetching CSV data with a non-200, non-404 status code.
-        
+
         Verifies that the function returns None when the HTTP request results in a status code other than 200 or 404.
         """
         mock_response = MagicMock()
@@ -104,7 +105,7 @@ class TestAuctionData(unittest.TestCase):
     def test_fetch_csv_data_exception(self, mock_get):
         """
         Test fetching CSV data when an exception occurs.
-        
+
         Verifies that the function returns None when an exception is raised during the HTTP request.
         """
         mock_get.side_effect = Exception("Network error")
@@ -115,7 +116,7 @@ class TestAuctionData(unittest.TestCase):
     def test_process_auction_row_missing_fields(self):
         """
         Test processing an auction row with missing required fields.
-        
+
         Verifies that the function returns None when essential fields like Description or Quantity are missing.
         """
         row = {"Date of Auction": "21/03/2024"}
@@ -127,7 +128,7 @@ class TestAuctionData(unittest.TestCase):
     def test_process_auction_row_valid_date(self):
         """
         Test processing an auction row with a valid date within range.
-        
+
         Verifies that the function correctly formats the date and returns a dictionary with auction details.
         """
         row = {
@@ -150,7 +151,7 @@ class TestAuctionData(unittest.TestCase):
     def test_process_auction_row_invalid_date(self):
         """
         Test processing an auction row with an invalid date format.
-        
+
         Verifies that the function returns a dictionary with the original date string when the date cannot be parsed.
         """
         row = {
@@ -173,7 +174,7 @@ class TestAuctionData(unittest.TestCase):
     def test_process_auction_row_out_of_range(self):
         """
         Test processing an auction row with a date outside the specified range.
-        
+
         Verifies that the function returns None when the auction date is outside the given date range.
         """
         row = {
@@ -193,7 +194,7 @@ class TestAuctionData(unittest.TestCase):
     def test_get_government_auction_data(self, mock_fetch):
         """
         Test retrieving auction data for a specified date range and language.
-        
+
         Verifies that the function correctly fetches and processes auction data, returning only items within the date range.
         """
         mock_csv_content = StringIO(
@@ -269,7 +270,9 @@ class TestAuctionData(unittest.TestCase):
             "hkopenai.hk_misc_mcp_server.tool_auction._get_government_auction_data"
         ) as mock_get_government_auction_data:
             decorated_function(2023, 1, 2023, 12, "EN")
-            mock_get_government_auction_data.assert_called_once_with(2023, 1, 2023, 12, "EN")
+            mock_get_government_auction_data.assert_called_once_with(
+                2023, 1, 2023, 12, "EN"
+            )
 
 
 if __name__ == "__main__":
