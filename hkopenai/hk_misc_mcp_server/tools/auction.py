@@ -5,12 +5,9 @@ This module provides functionality to retrieve and process auction data
 for a specified date range and language.
 """
 
-import csv
-from io import StringIO
 from typing import List, Dict, Optional
 from datetime import datetime
-
-import requests
+from hkopenai_common.csv_utils import fetch_csv_from_url
 
 
 def validate_language(language: str) -> str:
@@ -30,24 +27,7 @@ def create_date_range(
     return start_date, end_date
 
 
-def fetch_csv_data(url: str) -> Optional[StringIO]:
-    """Fetch CSV data from the given URL and return it as a StringIO object if successful."""
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            content = response.content.decode("utf-8-sig")
-            return StringIO(content)
-        elif response.status_code == 404:
-            print(f"Data not found for URL: {url}. Trying a smaller list number.")
-        else:
-            print(
-                f"Unexpected status code {response.status_code} for URL: {url}. Continuing to older records."
-            )
-    except Exception as e:
-        print(
-            f"Error fetching data for URL: {url}: {str(e)}. Continuing to older records."
-        )
-    return None
+
 
 
 def process_auction_row(
@@ -143,10 +123,11 @@ def _get_government_auction_data(
 
     while current_year >= start_year:
         url = base_url.format(current_list_no, current_year, lang)
-        csv_content = fetch_csv_data(url)
-        if csv_content:
-            reader = csv.DictReader(csv_content)
-            for row in reader:
+        csv_data = fetch_csv_from_url(url, encoding="utf-8-sig")
+        if "error" in csv_data:
+            return {"type": "Error", "error": csv_data["error"]}
+        if csv_data:
+            for row in csv_data:
                 processed_row = process_auction_row(row, start_date, end_date)
                 if processed_row:
                     result.append(processed_row)

@@ -8,4 +8,4 @@ from hkopenai_common.cli_utils import cli_main
 from . import server
 
 if __name__ == "__main__":
-    cli_main(server.main, "HK Misc MCP Server")
+    cli_main(server, "HK Misc MCP Server")

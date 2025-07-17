@@ -6,7 +6,7 @@ This module tests the creation and configuration of the MCP server.
 
 import unittest
 from unittest.mock import patch, Mock
-from hkopenai.hk_misc_mcp_server.server import create_mcp_server
+from hkopenai.hk_misc_mcp_server.server import server
 
 
 class TestApp(unittest.TestCase):
@@ -18,8 +18,8 @@ class TestApp(unittest.TestCase):
     """
 
     @patch("hkopenai.hk_misc_mcp_server.server.FastMCP")
-    @patch("hkopenai.hk_misc_mcp_server.server.tool_auction")
-    def test_create_mcp_server(self, mock_tool_auction, mock_fastmcp):
+    @patch("hkopenai.hk_misc_mcp_server.server.auction")
+    def test_server(self, mock_auction, mock_fastmcp):
         """
         Test the creation of the MCP server.
 
@@ -27,21 +27,21 @@ class TestApp(unittest.TestCase):
         tool configurations and that the underlying functions are called as expected.
         """
         # Setup mocks
-        mock_server = Mock()
+        mock_mcp = Mock()
 
-        # Configure mock_server.tool to return a mock that acts as the decorator
+        # Configure mock_mcp.tool to return a mock that acts as the decorator
         # This mock will then be called with the function to be decorated
-        mock_server.tool.return_value = Mock()
-        mock_fastmcp.return_value = mock_server
+        mock_mcp.tool.return_value = Mock()
+        mock_fastmcp.return_value = mock_mcp
 
         # Test server creation
-        server = create_mcp_server()
+        mcp = server()
 
         # Verify server creation
         mock_fastmcp.assert_called_once()
-        self.assertEqual(server, mock_server)
+        self.assertEqual(mcp, mock_mcp)
 
-        mock_tool_auction.register.assert_called_once_with(mock_server)
+        mock_auction.register.assert_called_once_with(mock_mcp)
 
 
 if __name__ == "__main__":
